@@ -111,7 +111,7 @@ function unsubscribe(ticker){
     }
 
     API.send(JSON.stringify(parameters));
-    index = currentTickers.indexOf(ticker);
+    let index = currentTickers.indexOf(ticker);
     currentTickers.splice(index, 1);
 
 }
