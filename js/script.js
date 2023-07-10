@@ -13,11 +13,10 @@ document.querySelector("#input-form").addEventListener("submit", (event) => {
 
 })
 
+const URL = "wss://ws-feed.exchange.coinbase.com";
+const API = new WebSocket(URL);
 
-const url = "wss://ws-feed.exchange.coinbase.com";
-const webSocket = new WebSocket(url);
-
-webSocket.onmessage = (event) => {
+API.onmessage = (event) => {
     let data = JSON.parse(event.data);
     console.log(data);
     if (data.type === "ticker"){
@@ -33,17 +32,32 @@ webSocket.onmessage = (event) => {
 }
 
 function addCard(ticker) {
-    document.querySelector("#card-wrapper").innerHTML += 
-        `
-        <div class="card">
-            <h2 id="${ticker}-USD-name">${ticker}</h2>
-            <h3>price: <span id="${ticker}-USD-price">Waiting for API...</span></h3>
-            <h3>24hr low: <span id="${ticker}-USD-low">Waiting for API...</span></h3>
-            <h3>24hr high: <span id="${ticker}-USD-high">Waiting for API...</span></h3>
-        </div>
-        `
+    const cardWrapper = document.querySelector("#card-wrapper");
+    const cardElement = document.createElement("div");
+
+    cardElement.className = "card";
+    cardElement.id = `${ticker}card`;
+    cardElement.innerHTML = `
+        <h2 id="${ticker}-USD-name">${ticker}</h2>
+        <h3>price: <span id="${ticker}-USD-price">Waiting for API...</span></h3>
+        <h3>24hr low: <span id="${ticker}-USD-low">Waiting for API...</span></h3>
+        <h3>24hr high: <span id="${ticker}-USD-high">Waiting for API...</span></h3>
+        <button id="${ticker}-remove">Remove</button>
+    `;
+
+    const removeButton = cardElement.querySelector(`#${ticker}-remove`);
+    removeButton.addEventListener("click", () => {
+        unsubscribe(ticker);
+        removeCard(ticker);
+    });
+
+    cardWrapper.appendChild(cardElement);
 
     subscribe(ticker);
+}
+
+function removeCard(ticker) {
+    document.querySelector(`#${ticker}card`).remove();
 }
 
 function setPrice(tickerID, tickerPrice) {
@@ -80,17 +94,24 @@ function subscribe(ticker) {
         ]
     }
 
-    webSocket.send(JSON.stringify(parameters));
+    API.send(JSON.stringify(parameters));
 }
 
-function unsubscribe(){
+function unsubscribe(ticker){
+
     let parameters = {
         "type": "unsubscribe",
+        "product_ids": [
+          `${ticker}-USD`
+        ],
         "channels": [
             "heartbeat",
-            "ticker_1000"
+            "ticker"
         ]
     }
 
-    webSocket.send(JSON.stringify(parameters));
+    API.send(JSON.stringify(parameters));
+    index = currentTickers.indexOf(ticker);
+    currentTickers.splice(index, 1);
+
 }
