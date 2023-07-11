@@ -22,7 +22,7 @@ body {
 #card-wrapper {
     display: flex;
     flex-direction: row;
-    justify-content: flex-start;
+    justify-content: center;
     flex-wrap: wrap;
     margin: 5px 20px 50px 20px;
 }
@@ -31,11 +31,12 @@ body {
     display: flex;
     flex-direction: column;
     border: 2px rgba(0, 0, 0, 50%) solid;
-    width: 250px;
+    width: 290px;
     padding: 5px 10px;
-    margin: 5px 10px;
+    margin: 10px 10px;
     background-color: #efefef;
     border-radius: 6px;
+    position: relative;
 }
 
 .card span {
@@ -45,6 +46,7 @@ body {
 .card h3 {
     margin: 10px 5px;
     display: flex;
+    justify-content: space-between;
     align-items: baseline;
 }
 
@@ -70,6 +72,8 @@ body {
 .card-number {
     margin-left: auto;
     text-align: right;
+    overflow-x: auto;
+    white-space: nowrap;
 }
 
 .btn-container {
@@ -78,8 +82,21 @@ body {
 
 .remove-btn {
     margin: 20px;
-    width: 120px;
     height: 30px;
+    position: absolute;
+    top: 6%;
+    transform: translateY(-50%);
+    right: 1px;
+    opacity: 0;
+}
+
+.card:hover .remove-btn{
+    transition: opacity 0.4s;
+    opacity: 100%;
+}
+
+.remove-btn:hover{
+    cursor: pointer;
 }
 
 #coinbase-link {

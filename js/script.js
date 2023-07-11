@@ -8,12 +8,13 @@ currentTickers = JSON.parse(localStorage.getItem("tickerList"));
 
 document.querySelector("#input-form").addEventListener("submit", (event) => {
     event.preventDefault();
+    document.querySelector("#error").innerText = "";
     let input = document.querySelector("#user-input").value.toUpperCase();
-    if (!currentTickers.includes(input)){
+    if (!currentTickers.includes(input) && input.length > 0){
         currentTickers.push(input);
         addCard(document.querySelector("#user-input").value.toUpperCase());
         document.querySelector("#user-input").value = "";
-    }else {
+    }else if (input.length > 0) {
         errorHandler(`Already tracking ${input}`);
     }
 
@@ -56,14 +57,14 @@ function addCard(ticker) {
     cardElement.id = `${ticker}card`;
     cardElement.innerHTML = `
         <h2 class="card-name" id="${ticker}-USD-name">${ticker}</h2>
+        <div class="btn-container">
+            <img class="remove-btn" id="${ticker}-remove" src="assets/removeIcon.png" alt="removeIcon">
+        </div>
         <h3>Price: <span class="card-number" id="${ticker}-USD-price">Waiting for API...</span></h3>
         <h3>24hr Open: <span class="card-number" id="${ticker}-USD-open">Waiting for API...</span></h3>
         <h3>24hr Low: <span class="card-number" id="${ticker}-USD-low">Waiting for API...</span></h3>
         <h3>24hr High: <span class="card-number" id="${ticker}-USD-high">Waiting for API...</span></h3>
         <h3>Volume: <span class="card-number" id="${ticker}-USD-volume">Waiting for API...</span></h3>
-        <div class="btn-container">
-            <button class="remove-btn" id="${ticker}-remove">Remove</button>
-        </div>
     `;
 
     const removeButton = cardElement.querySelector(`#${ticker}-remove`);
@@ -135,7 +136,7 @@ function setVolume(tickerID, tickerVolume) {
     currentVolume = currentVolume.replace("$", "");
     currentVolumeElement.innerText = volume.toFixed(2);
 
-    if (volume >= parseFloat(currentVolume)) {
+    if (volume >= parseFloat(currentVolume) || currentVolume.toString() === 'Waiting for API...') {
         currentVolumeElement.style.color = "green";
     } else {
         currentVolumeElement.style.color = "red";
@@ -155,6 +156,10 @@ function errorHandler(msg){
         let index = currentTickers.indexOf(ticker);
         currentTickers.splice(index,1);
         localStorage.setItem("tickerList", JSON.stringify(currentTickers));
+    }
+
+    if (msg.includes('websocket')){
+        alert("Session has been idle too long, please reload the page");
     }
 }
 
