@@ -20,7 +20,6 @@ document.querySelector("#input-form").addEventListener("submit", (event) => {
 
 })
 
-// TODO: if page is idle with 0 tickers active, websocket will close.
 const URL = "wss://ws-feed.exchange.coinbase.com";
 const API = new WebSocket(URL);
 
@@ -157,10 +156,12 @@ function errorHandler(msg){
         currentTickers.splice(index,1);
         localStorage.setItem("tickerList", JSON.stringify(currentTickers));
     }
+}
 
-    if (msg.includes('websocket')){
-        alert("Session has been idle too long, please reload the page");
-    }
+function idleSession(){
+    currentTickers = [];
+    localStorage.setItem("tickerList", JSON.stringify(currentTickers));
+    alert('Session has been idle too long, please reload the page') ? "" : location.reload();
 }
 
 function subscribe(ticker) {
@@ -180,7 +181,16 @@ function subscribe(ticker) {
         ]
     }
 
+    if (!isSocketOpen(API)) {
+        idleSession();
+        return;
+    }
+    
     API.send(JSON.stringify(parameters));
+}
+
+function isSocketOpen(wss) {
+    return wss.readyState === wss.open;
 }
 
 function unsubscribe(ticker){
