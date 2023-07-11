@@ -1,18 +1,25 @@
+let currentTickers = [];
 
-const currentTickers = [];
+if (localStorage.getItem("tickerList") === null){
+    localStorage.setItem("tickerList", JSON.stringify(currentTickers));
+}
+
+currentTickers = JSON.parse(localStorage.getItem("tickerList"));
 
 document.querySelector("#input-form").addEventListener("submit", (event) => {
     event.preventDefault();
     let input = document.querySelector("#user-input").value.toUpperCase();
     if (!currentTickers.includes(input)){
-        addCard(document.querySelector("#user-input").value.toUpperCase());
         currentTickers.push(input);
+        addCard(document.querySelector("#user-input").value.toUpperCase());
+        document.querySelector("#user-input").value = "";
     }else {
         errorHandler(`Already tracking ${input}`);
     }
 
 })
 
+// TODO: if page is idle with 0 tickers active, websocket will close.
 const URL = "wss://ws-feed.exchange.coinbase.com";
 const API = new WebSocket(URL);
 
@@ -29,6 +36,16 @@ API.onmessage = (event) => {
         errorHandler(data.reason);
     }
 
+}
+
+setTimeout(function (){
+    fillTickers();
+}, 700)
+
+function fillTickers() {
+    currentTickers.forEach((item) => {
+        addCard(item);
+    })
 }
 
 function addCard(ticker) {
@@ -52,12 +69,13 @@ function addCard(ticker) {
     });
 
     cardWrapper.appendChild(cardElement);
-
+    localStorage.setItem("tickerList", JSON.stringify(currentTickers));
     subscribe(ticker);
 }
 
 function removeCard(ticker) {
     document.querySelector(`#${ticker}card`).remove();
+    localStorage.setItem("tickerList", JSON.stringify(currentTickers));
 }
 
 function setPrice(tickerID, tickerPrice) {
@@ -74,8 +92,18 @@ function setHigh(tickerID, tickerHigh) {
 
 function errorHandler(msg){
     document.querySelector("#error").innerText = msg;
-}
 
+    if (msg.includes(' is not a valid product')) {
+        let ticker = JSON.stringify(msg);
+
+        ticker = ticker.replace("-USD is not a valid product", "");
+        ticker = ticker.replaceAll('"', "");
+
+        removeCard(ticker);
+        let index = currentTickers.indexOf(ticker);
+        currentTickers.splice(index,1);
+    }
+}
 
 function subscribe(ticker) {
     let parameters = {

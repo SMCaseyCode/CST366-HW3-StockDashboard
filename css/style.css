@@ -1,0 +1,23 @@
+.title {
+
+}
+
+.content-wrapper {
+    display: flex;
+    flex-direction: column;
+    border: 2px red dashed;
+}
+
+#card-wrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+}
+
+.card {
+    border: 4px black solid;
+    width: 200px;
+    padding: 5px 10px;
+    margin: 5px 10px;
+}
