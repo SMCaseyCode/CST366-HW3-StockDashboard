@@ -26,12 +26,12 @@ const API = new WebSocket(URL);
 API.onmessage = (event) => {
     let data = JSON.parse(event.data);
     console.log(data);
-    if (data.type === "ticker"){
-        let productID = data.product_id;
 
-        setPrice(productID, data.price);
-        setLow(productID, data.low_24h);
-        setHigh(productID, data.high_24h);
+    if (data.type === "ticker"){
+
+        let productID = data.product_id;
+        changeData(productID, data);
+
     } else if (data.type === "error") {
         errorHandler(data.reason);
     }
@@ -55,11 +55,15 @@ function addCard(ticker) {
     cardElement.className = "card";
     cardElement.id = `${ticker}card`;
     cardElement.innerHTML = `
-        <h2 id="${ticker}-USD-name">${ticker}</h2>
-        <h3>price: <span id="${ticker}-USD-price">Waiting for API...</span></h3>
-        <h3>24hr low: <span id="${ticker}-USD-low">Waiting for API...</span></h3>
-        <h3>24hr high: <span id="${ticker}-USD-high">Waiting for API...</span></h3>
-        <button id="${ticker}-remove">Remove</button>
+        <h2 class="card-name" id="${ticker}-USD-name">${ticker}</h2>
+        <h3>Price: <span class="card-number" id="${ticker}-USD-price">Waiting for API...</span></h3>
+        <h3>24hr Open: <span class="card-number" id="${ticker}-USD-open">Waiting for API...</span></h3>
+        <h3>24hr Low: <span class="card-number" id="${ticker}-USD-low">Waiting for API...</span></h3>
+        <h3>24hr High: <span class="card-number" id="${ticker}-USD-high">Waiting for API...</span></h3>
+        <h3>Volume: <span class="card-number" id="${ticker}-USD-volume">Waiting for API...</span></h3>
+        <div class="btn-container">
+            <button class="remove-btn" id="${ticker}-remove">Remove</button>
+        </div>
     `;
 
     const removeButton = cardElement.querySelector(`#${ticker}-remove`);
@@ -78,8 +82,38 @@ function removeCard(ticker) {
     localStorage.setItem("tickerList", JSON.stringify(currentTickers));
 }
 
-function setPrice(tickerID, tickerPrice) {
-    document.querySelector(`#${tickerID}-price`).innerText = '$' + tickerPrice;
+function changeData(productID, data) {
+    setPrice(productID, data.price, data.open_24h);
+    setLow(productID, data.low_24h);
+    setHigh(productID, data.high_24h);
+    setOpen(productID, data.open_24h);
+    setVolume(productID, data.volume_30d);
+}
+
+function setPrice(tickerID, tickerPrice, openPrice) {
+    let currentPriceElement = document.querySelector(`#${tickerID}-price`);
+
+    currentPriceElement.innerText = '$' + tickerPrice;
+
+    if (parseFloat(tickerPrice) >= parseFloat(openPrice)) {
+        currentPriceElement.style.color = "green";
+        currentPriceElement.style.transition = "background-color 0.1s";
+
+        // Green Flashing effect
+        currentPriceElement.style.backgroundColor = "rgba(0,255,0,50%)";
+        setTimeout(() => {
+            currentPriceElement.style.backgroundColor = "";
+        }, 100);
+    } else {
+        currentPriceElement.style.color = "red";
+        currentPriceElement.style.transition = "background-color 0.1s";
+
+        // Red Flashing effect
+        currentPriceElement.style.backgroundColor = "rgba(255,0,0,50%)";
+        setTimeout(() => {
+            currentPriceElement.style.backgroundColor = "";
+        }, 100);
+    }
 }
 
 function setLow(tickerID, tickerLow) {
@@ -88,6 +122,24 @@ function setLow(tickerID, tickerLow) {
 
 function setHigh(tickerID, tickerHigh) {
     document.querySelector(`#${tickerID}-high`).innerText = '$' + tickerHigh;
+}
+
+function setOpen(tickerID, tickerOpen) {
+    document.querySelector(`#${tickerID}-open`).innerText = '$' + tickerOpen;
+}
+
+function setVolume(tickerID, tickerVolume) {
+    let currentVolumeElement = document.querySelector(`#${tickerID}-volume`);
+    let currentVolume = currentVolumeElement.innerText;
+    let volume = parseFloat(tickerVolume);
+    currentVolume = currentVolume.replace("$", "");
+    currentVolumeElement.innerText = volume.toFixed(2);
+
+    if (volume >= parseFloat(currentVolume)) {
+        currentVolumeElement.style.color = "green";
+    } else {
+        currentVolumeElement.style.color = "red";
+    }
 }
 
 function errorHandler(msg){
@@ -102,6 +154,7 @@ function errorHandler(msg){
         removeCard(ticker);
         let index = currentTickers.indexOf(ticker);
         currentTickers.splice(index,1);
+        localStorage.setItem("tickerList", JSON.stringify(currentTickers));
     }
 }
 

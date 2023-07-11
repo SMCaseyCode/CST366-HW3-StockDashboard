@@ -1,11 +1,22 @@
-.title {
+* {
+    font-family: 'Comfortaa', cursive;
+}
 
+body {
+    background-color: #efefef;
+}
+
+.title {
+    font-weight: 700;
 }
 
 .content-wrapper {
     display: flex;
     flex-direction: column;
-    border: 2px red dashed;
+    box-shadow: 0 0 8px 2px black;
+    margin: 25px;
+    border-radius: 8px;
+    background-color: white;
 }
 
 #card-wrapper {
@@ -13,11 +24,70 @@
     flex-direction: row;
     justify-content: flex-start;
     flex-wrap: wrap;
+    margin: 5px 20px 50px 20px;
 }
 
 .card {
-    border: 4px black solid;
-    width: 200px;
+    display: flex;
+    flex-direction: column;
+    border: 2px rgba(0, 0, 0, 50%) solid;
+    width: 250px;
     padding: 5px 10px;
     margin: 5px 10px;
+    background-color: #efefef;
+    border-radius: 6px;
+}
+
+.card span {
+    display: block;
+}
+
+.card h3 {
+    margin: 10px 5px;
+    display: flex;
+    align-items: baseline;
+}
+
+#error {
+    padding-left: 20px;
+}
+
+#user-input {
+    font-size: 1.5em;
+    border: 2px rgba(0, 0, 0, 70%) solid;
+    padding: 6px 5px;
+    min-width: 340px;
+}
+
+#input-form {
+    margin: 5px 0 10px 20px;
+}
+
+.card-name {
+    text-align: center;
+}
+
+.card-number {
+    margin-left: auto;
+    text-align: right;
+}
+
+.btn-container {
+    text-align: center;
+}
+
+.remove-btn {
+    margin: 20px;
+    width: 120px;
+    height: 30px;
+}
+
+#coinbase-link {
+    font-weight: 700;
+    font-size: 1.2em;
+}
+
+a {
+    text-decoration: underline;
+    color: black;
 }
