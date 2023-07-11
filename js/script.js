@@ -213,7 +213,7 @@ function subscribe(ticker) {
 
 // Checks if socket is open
 function isSocketOpen(wss) {
-    return wss.readyState === wss.open;
+    return wss.readyState === wss.OPEN;
 }
 
 // Sent to APU to remove ticker from watchlist
