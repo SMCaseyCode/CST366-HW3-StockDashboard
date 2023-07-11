@@ -12,11 +12,14 @@ document.querySelector("#input-form").addEventListener("submit", (event) => {
     event.preventDefault();
     document.querySelector("#error").innerText = "";
     let input = document.querySelector("#user-input").value.toUpperCase();
-    if (!currentTickers.includes(input) && input.length > 0){
+    let validation = validateInput(input);
+    if (!currentTickers.includes(input) && validation !== "invalid input"){
         currentTickers.push(input);
         addCard(document.querySelector("#user-input").value.toUpperCase());
         document.querySelector("#user-input").value = "";
-    }else if (input.length > 0) {
+    }else if (validation === "invalid input") {
+        errorHandler("invalid input");
+    } else {
         errorHandler(`Already tracking ${input}`);
     }
 
@@ -54,6 +57,12 @@ function fillTickers() {
     currentTickers.forEach((item) => {
         addCard(item);
     })
+}
+
+function validateInput(input){
+    if (input.length === 0 || /[^a-zA-Z]/.test(input)) {
+        return "invalid input";
+    }
 }
 
 // Adds card when input is entered
