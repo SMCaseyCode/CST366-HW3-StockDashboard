@@ -216,7 +216,7 @@ function isSocketOpen(wss) {
     return wss.readyState === wss.OPEN;
 }
 
-// Sent to APU to remove ticker from watchlist
+// Sent to API to remove ticker from watchlist
 function unsubscribe(ticker){
 
     let parameters = {
