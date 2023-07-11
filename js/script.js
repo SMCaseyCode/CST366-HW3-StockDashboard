@@ -1,11 +1,13 @@
 let currentTickers = [];
 
+// Checks for localStorage, if none, creates entry
 if (localStorage.getItem("tickerList") === null){
     localStorage.setItem("tickerList", JSON.stringify(currentTickers));
 }
 
 currentTickers = JSON.parse(localStorage.getItem("tickerList"));
 
+// Form submission event listener
 document.querySelector("#input-form").addEventListener("submit", (event) => {
     event.preventDefault();
     document.querySelector("#error").innerText = "";
@@ -20,13 +22,17 @@ document.querySelector("#input-form").addEventListener("submit", (event) => {
 
 })
 
+// API URL + Websocket creation
 const URL = "wss://ws-feed.exchange.coinbase.com";
 const API = new WebSocket(URL);
 
+// on API message, do ___
 API.onmessage = (event) => {
     let data = JSON.parse(event.data);
+    // Sends msg from API to console
     console.log(data);
 
+    // If data is ticker, not heartbeat
     if (data.type === "ticker"){
 
         let productID = data.product_id;
@@ -38,16 +44,19 @@ API.onmessage = (event) => {
 
 }
 
+// Fills dashboard with localStorage, on delay to allow for websocket to connect.
 setTimeout(function (){
     fillTickers();
 }, 700)
 
+// Fills dashboard
 function fillTickers() {
     currentTickers.forEach((item) => {
         addCard(item);
     })
 }
 
+// Adds card when input is entered
 function addCard(ticker) {
     const cardWrapper = document.querySelector("#card-wrapper");
     const cardElement = document.createElement("div");
@@ -66,6 +75,7 @@ function addCard(ticker) {
         <h3>Volume: <span class="card-number" id="${ticker}-USD-volume">Waiting for API...</span></h3>
     `;
 
+    // Set eventListener for remove button
     const removeButton = cardElement.querySelector(`#${ticker}-remove`);
     removeButton.addEventListener("click", () => {
         unsubscribe(ticker);
@@ -74,14 +84,17 @@ function addCard(ticker) {
 
     cardWrapper.appendChild(cardElement);
     localStorage.setItem("tickerList", JSON.stringify(currentTickers));
+    // Sends to API to add to watch list
     subscribe(ticker);
 }
 
+// Removes card from dashboard
 function removeCard(ticker) {
     document.querySelector(`#${ticker}card`).remove();
     localStorage.setItem("tickerList", JSON.stringify(currentTickers));
 }
 
+// Changes data in cards
 function changeData(productID, data) {
     setPrice(productID, data.price, data.open_24h);
     setLow(productID, data.low_24h);
@@ -90,6 +103,7 @@ function changeData(productID, data) {
     setVolume(productID, data.volume_30d);
 }
 
+// Changes price
 function setPrice(tickerID, tickerPrice, openPrice) {
     let currentPriceElement = document.querySelector(`#${tickerID}-price`);
 
@@ -116,18 +130,22 @@ function setPrice(tickerID, tickerPrice, openPrice) {
     }
 }
 
+// Sets 24hr low
 function setLow(tickerID, tickerLow) {
     document.querySelector(`#${tickerID}-low`).innerText = '$' + tickerLow;
 }
 
+// Sets 24hr high
 function setHigh(tickerID, tickerHigh) {
     document.querySelector(`#${tickerID}-high`).innerText = '$' + tickerHigh;
 }
 
+// Sets 24hr open price
 function setOpen(tickerID, tickerOpen) {
     document.querySelector(`#${tickerID}-open`).innerText = '$' + tickerOpen;
 }
 
+// Sets 30d volume
 function setVolume(tickerID, tickerVolume) {
     let currentVolumeElement = document.querySelector(`#${tickerID}-volume`);
     let currentVolume = currentVolumeElement.innerText;
@@ -142,6 +160,7 @@ function setVolume(tickerID, tickerVolume) {
     }
 }
 
+// Handles any errors from API
 function errorHandler(msg){
     document.querySelector("#error").innerText = msg;
 
@@ -158,12 +177,14 @@ function errorHandler(msg){
     }
 }
 
+// Called if session was idle too long; websocket force closes from API
 function idleSession(){
     currentTickers = [];
     localStorage.setItem("tickerList", JSON.stringify(currentTickers));
     alert('Session has been idle too long, please reload the page') ? "" : location.reload();
 }
 
+// Sent to API to start watchlist
 function subscribe(ticker) {
     let parameters = {
         "type": "subscribe",
@@ -181,6 +202,7 @@ function subscribe(ticker) {
         ]
     }
 
+    // Checks if socket is open, if not, force refresh
     if (!isSocketOpen(API)) {
         idleSession();
         return;
@@ -189,10 +211,12 @@ function subscribe(ticker) {
     API.send(JSON.stringify(parameters));
 }
 
+// Checks if socket is open
 function isSocketOpen(wss) {
     return wss.readyState === wss.open;
 }
 
+// Sent to APU to remove ticker from watchlist
 function unsubscribe(ticker){
 
     let parameters = {
