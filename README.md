@@ -1,4 +1,4 @@
-<h1>CST336-HW2: To Do List</h1>
+<h1>CST336-HW3: Stock Dashboard</h1>
 
 ![Screenshot 2023-07-11 173434](https://github.com/SMCaseyCode/CST366-HW3-StockDashboard/assets/104325289/c136707a-b653-47b8-8cb9-34bfeb4af1f5)
 
